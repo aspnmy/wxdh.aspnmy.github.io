@@ -4263,13 +4263,13 @@
                 users: [{
                     id: "user-1",
                     name: "追风少年",
-                    image: _path.images + "/chat_face/face0.png",
+                    image: "static/app/images/chat_face/face0.png",
                     is_me: !0,
                     selected: !0
                 }, {
                     id: "user-2",
                     name: "甜甜",
-                    image: _path.images + "/chat_face/face1.png"
+                    image: "static/app/images/chat_face/face1.png"
                 }],
                 dialogs: []
             },
@@ -4278,7 +4278,7 @@
                     this.users.push({
                         id: "user-" + (new Date).valueOf(),
                         name: "微信对话",
-                        image: _path.images + "/user-face.png"
+                        image: "static/app/images/user-face.png"
                     })
                 },
                 delUser: function (A) {
