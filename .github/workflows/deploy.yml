@@ -1,0 +1,92 @@
+name: Build & Deploy
+
+on:
+  # 手动触发
+  workflow_dispatch:
+    inputs:
+      force:
+        description: '强制重建（忽略 builder.lock）'
+        type: boolean
+        default: false
+      release_tag:
+        description: '指定构建版本（留空则用 latest）'
+        type: string
+        default: ''
+  # 定时检查 builder.lock 指定的版本是否已更新（每 30 分钟）
+  schedule:
+    - cron: '*/30 * * * *'
+  # dist 分支 push 时触发（builder.lock 或 workflow 更新后）
+  push:
+    branches:
+      - dist
+    paths:
+      - 'builder.lock'
+      - '.github/workflows/deploy.yml'
+
+# 防止并发构建
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout dist 分支
+        uses: actions/checkout@v4
+        with:
+          ref: dist
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Determine build args
+        id: args
+        run: |
+          ARGS=""
+          if [ "${{ github.event.inputs.force }}" = "true" ]; then
+            ARGS="--force"
+            echo "force=true"
+          fi
+          if [ -n "${{ github.event.inputs.release_tag }}" ]; then
+            ARGS="$ARGS --release=${{ github.event.inputs.release_tag }}"
+            echo "release=${{ github.event.inputs.release_tag }}"
+          fi
+          echo "args=$ARGS" >> $GITHUB_OUTPUT
+
+      - name: Run build (拉取源码 + webpack 打包)
+        run: node build.js ${{ steps.args.outputs.args }}
+
+      - name: Commit & Push 构建产物
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet && git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git add dist/ builder.lock package-lock.json index.html -f
+            git commit -m "ci: auto build & deploy [skip ci]"
+            git push origin dist
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/latest
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
