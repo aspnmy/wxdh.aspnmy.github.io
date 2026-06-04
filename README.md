@@ -7,30 +7,42 @@
 ```
 main 分支（源码）                    dist 分支（构建产物）
     │                                    │
-    ├── index.html                        ├── index.html          ← iframe 入口，加载 dist/latest
-    ├── static/                           ├── dist/
-    │   ├── css/                          │   ├── latest/         ← 公共路径，始终指向最新构建
-    │   ├── js/                           │   │   ├── index.html
-    │   └── images/                       │   │   └── static/
-    │                                    │   ├── latest.txt      ← 记录当前最新版本目录名
-    └── ...                              │   └── 0.0.3-20260605-abc1234/  ← 归档历史版本
-                                         ├── builder.lock        ← 本次构建的目标版本（指定 tag 或 release_id）
+    ├── index.html                        ├── index.html          ← 首页（构建后直接位于根目录）
+    ├── static/                           ├── static/             ← 构建产物（CSS/JS/Images）
+    │   ├── css/                          │   ├── css/
+    │   ├── js/                           │   ├── js/
+    │   └── images/                       │   └── images/
+    │                                    ├── favicon.ico
+    └── ...                              ├── dist/
+                                         │   ├── latest.txt      ← 记录最新归档目录名
+                                         │   └── 0.0.3-20260605-abc1234/  ← 归档历史版本
+                                         ├── builder.lock        ← 已部署版本记录
                                          ├── webpack.config.js   ← webpack 打包配置
                                          ├── build.js            ← 自动构建脚本
                                          └── package.json        ← 构建依赖
 ```
 
+## 构建后目录结构
+
+每次 `webpack` 构建完成后，`dist/latest/` 的内容会**移动到根目录**，`dist/latest/` 目录被删除：
+
+```
+构建前：dist/latest/index.html, dist/latest/static/...
+构建后：index.html（覆盖）, static/（覆盖）, favicon.ico（覆盖）
+```
+
 ## 自动构建流程（GitHub Actions）
 
-当 `main` 分支创建新 Release 或 `dist` 分支收到 push 时：
+当 `main` 分支创建新 Release 或 `builder.lock` 更新时：
 
-1. **读取目标版本** — 从 `builder.lock` 读取本次需要构建的版本（`tag=v0.0.3` 或 `release_id=...`）
-2. **拉取源码** — 从 [GitHub Releases](https://github.com/aspnmy/wxdh.aspnmy.github.io/releases) 下载指定版本的源码到 `src/`
+1. **读取目标版本** — 从 `builder.lock` 对比已构建版本与最新 Release
+2. **拉取源码** — 从 [GitHub Releases](https://github.com/aspnmy/wxdh.aspnmy.github.io/releases) 下载源码到 `src/`
 3. **webpack 打包** — 压缩 JS/CSS，输出到 `dist/latest/`
-4. **版本归档** — 同步拷贝到 `dist/{version}-{timestamp}-{githash}/`
-5. **清理源码** — 删除 `src/` 中的源代码（仅保留 `.source-version` 记录）
-6. **提交 & 推送** — 将 `dist/` 等构建产物提交回 `dist` 分支
-7. **GitHub Pages 自动部署** — Pages 设置为从 `dist` 分支根目录部署
+4. **移动到根目录** — 将 `dist/latest/` 内容移动到仓库根目录，删除 `dist/latest/`
+5. **版本归档** — 同步拷贝到 `dist/{version}-{timestamp}-{githash}/`
+6. **清理源码** — 删除 `src/` 中的源代码（仅保留 `.source-version`）
+7. **提交 & 推送** — 将根目录产物 + `dist/` 归档提交回 `dist` 分支
+8. **GitHub Pages 自动部署** — 从根目录直接部署
 
 ## builder.lock 机制
 
@@ -50,28 +62,21 @@ built=2026-06-05T00:30:00.000Z
 ## 本地构建
 
 ```bash
-# 安装依赖
 npm install
-
-# 完整构建（拉取最新 Release 源码 + webpack 打包）
-npm run build
-
-# 跳过拉取，仅用已有 src/ 构建
-npm run build:skipfetch
-
-# 仅在 GitHub Release 更新后重新构建（需要先手动更新 main 分支）
-# CI 自动处理，本地无需操作
+npm run build           # 完整构建
+npm run build:skipfetch  # 跳过拉取源码，仅用已有 src/ 构建
 ```
 
 ## 目录说明
 
 | 文件/目录 | 作用 | 是否提交 |
 |-----------|------|----------|
-| `index.html` | 根入口，iframe 加载 `dist/latest/index.html` | 是 |
-| `dist/latest/` | 最新构建产物（公共路径） | 是 |
+| `index.html` | 首页（构建后自动更新，title 含版本号） | 是 |
+| `static/` | 构建产物（CSS/JS/Images） | 是 |
+| `favicon.ico` | 网站图标 | 是 |
 | `dist/0.0.3-.../` | 归档的历史版本 | 是 |
 | `dist/latest.txt` | 记录最新归档目录名 | 是 |
-| `builder.lock` | 本次构建的目标版本 | 是 |
+| `builder.lock` | 已构建版本记录 | 是 |
 | `webpack.config.js` | webpack 打包配置 | 是 |
 | `build.js` | 自动构建脚本 | 是 |
 | `package.json` | 构建依赖声明 | 是 |

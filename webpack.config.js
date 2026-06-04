@@ -91,34 +91,50 @@ module.exports = {
     {
       apply(compiler) {
         compiler.hooks.done.tap('PostBuildCleanup', () => {
+          const rootDir = path.resolve(__dirname);
           const placeholder = path.resolve(buildDir, '__placeholder__.js');
           if (fs.existsSync(placeholder)) fs.unlinkSync(placeholder);
+
+          // 1. 归档到 dist/{版本号}/ 目录
           copyDir(buildDir, archiveDir);
 
-          // 修复 dist/latest/index.html 中的绝对路径为相对路径
+          // 2. 修复 HTML 中的绝对路径
           const builtIndex = path.resolve(buildDir, 'index.html');
           if (fs.existsSync(builtIndex)) {
             let html = fs.readFileSync(builtIndex, 'utf8');
-            // 修复 src="/xxx" → src="xxx"
             html = html.replace(/(src|href)="\/(static\/)/g, '$1="$2');
-            // 修复 url(/xxx) → url(xxx)
             html = html.replace(/url\(\/(static\/)/g, 'url($1');
             fs.writeFileSync(builtIndex, html);
           }
 
-          // 更新根目录 index.html 的 title 标签，追加版本号
-          const rootIndex = path.resolve(__dirname, 'index.html');
+          // 3. 将 dist/latest/ 内容移动到根目录
+          for (const entry of fs.readdirSync(buildDir, { withFileTypes: true })) {
+            const srcPath = path.join(buildDir, entry.name);
+            const destPath = path.join(rootDir, entry.name);
+            if (entry.isDirectory()) {
+              if (fs.existsSync(destPath)) fs.rmSync(destPath, { recursive: true, force: true });
+              copyDir(srcPath, destPath);
+            } else {
+              fs.copyFileSync(srcPath, destPath);
+            }
+          }
+
+          // 4. 删除 dist/latest/ 目录
+          fs.rmSync(buildDir, { recursive: true, force: true });
+
+          // 5. 更新根目录 index.html 的 title
+          const rootIndex = path.resolve(rootDir, 'index.html');
           if (fs.existsSync(rootIndex)) {
             const rootHtml = fs.readFileSync(rootIndex, 'utf8');
             const updatedHtml = rootHtml.replace(
               /<title>.*?<\/title>/,
-              `<title>微信对话生成器 — v${dirName}</title>`
+              `<title>微信对话生成器 — ${dirName}</title>`
             );
             fs.writeFileSync(rootIndex, updatedHtml);
           }
 
-          // 写入 latest.txt 记录最新版本
-          const latestFile = path.resolve(__dirname, 'dist', 'latest.txt');
+          // 6. 写入 latest.txt
+          const latestFile = path.resolve(rootDir, 'dist', 'latest.txt');
           fs.writeFileSync(latestFile, dirName);
         });
       },

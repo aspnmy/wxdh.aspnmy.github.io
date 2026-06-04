@@ -79,7 +79,7 @@ jobs:
           if git diff --quiet && git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git add dist/ builder.lock package-lock.json index.html -f
+            git add dist/ builder.lock package-lock.json static/ index.html favicon.ico CNAME -f
             git commit -m "ci: auto build & deploy [skip ci]"
             git push origin dist
           fi
@@ -89,7 +89,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist/latest
+          path: .
 
       - name: Deploy to GitHub Pages
         id: deploy
