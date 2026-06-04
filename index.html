@@ -19,7 +19,7 @@
 	<link rel="stylesheet" href="static/app/css/app.css">
 	<link rel="stylesheet" href="static/app/css/wallet.css">
 	<script type="text/javascript" src="static/app/js/common.bundle.js"></script>
-	<script type="text/javascript" src="static/app/js/chat.bundle.js"></script>
+	<script type="text/javascript" src="static/app/js/chat.js"></script>
 </head>
 <body>
 	<div id="vueApp" class="wrapper">
@@ -244,6 +244,10 @@
 										</div>
 									</div>
 									<button class="btn-clear" @click="cleanDialogs" href="javascript:;">清空聊天内容</button>
+									<button type="button" class="btn btn-red" onclick="captureScreenshot()">
+                            <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" style="margin-right: 5px;" width="15" height="15"><path d="M224 800h576v-576h-576v576z m64-512h448v448h-448v-448z"></path><path d="M1024 296.192v-64h-96V192c0-52.928-43.072-96-96-96h-40.192V0h-64v96H544V0h-64v96H296.192V0h-64v96H192c-52.928 0-96 43.072-96 96v40.256H0v64h96V480H0v64h96v183.808H0v64h96V832c0 52.928 43.072 96 96 96h40.192V1024h64v-96H480V1024h64v-96h183.808V1024h64v-96H832c52.928 0 96-43.072 96-96v-40.256H1024v-64h-96V544H1024v-64h-96V296.192H1024zM864 832a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32V192a32 32 0 0 1 32-32h640a32 32 0 0 1 32 32v640z"></path></svg>
+                            生成图片截图
+                        </button>
 								</div>
 							</div>
 						</div>
