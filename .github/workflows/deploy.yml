@@ -19,9 +19,12 @@ on:
   push:
     branches:
       - dist
-    paths:
+paths:
       - 'builder.lock'
       - '.github/workflows/deploy.yml'
+  # index.html 的变更不触发构建（title 由 webpack 构建后写入，不含触发源）
+  paths-ignore:
+      - 'index.html'
 
 # 防止并发构建
 concurrency:

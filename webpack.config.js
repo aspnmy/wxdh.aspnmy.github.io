@@ -94,6 +94,19 @@ module.exports = {
           const placeholder = path.resolve(buildDir, '__placeholder__.js');
           if (fs.existsSync(placeholder)) fs.unlinkSync(placeholder);
           copyDir(buildDir, archiveDir);
+
+          // 更新根目录 index.html 的 title 标签，追加版本号
+          const rootIndex = path.resolve(__dirname, 'index.html');
+          if (fs.existsSync(rootIndex)) {
+            const rootHtml = fs.readFileSync(rootIndex, 'utf8');
+            const updatedHtml = rootHtml.replace(
+              /<title>.*?<\/title>/,
+              `<title>微信对话生成器 — v${dirName}</title>`
+            );
+            fs.writeFileSync(rootIndex, updatedHtml);
+          }
+
+          // 写入 latest.txt 记录最新版本
           const latestFile = path.resolve(__dirname, 'dist', 'latest.txt');
           fs.writeFileSync(latestFile, dirName);
         });
