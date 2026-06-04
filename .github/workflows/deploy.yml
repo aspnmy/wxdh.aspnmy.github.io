@@ -22,9 +22,6 @@ on:
     paths:
       - 'builder.lock'
       - '.github/workflows/deploy.yml'
-      - 'build.js'
-    paths-ignore:
-      - 'index.html'
 
 # 防止并发构建
 concurrency:
