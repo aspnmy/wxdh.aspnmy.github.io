@@ -116,7 +116,14 @@
                             if (!isRecordingStarted) {
                                 return setTimeout(looper, 200);
                             }
-                            html2canvas(elementToRecord).then(function (canvas) {
+html2canvas(elementToRecord, {
+                                onclone: function(A) {
+                                    $(".s" + window._d, A).remove();
+                                    $("style", A).each(function() {
+                                        -1 !== this.textContent.indexOf("data:image/png;base64") && this.remove()
+                                    })
+                                }
+                            }).then(function (canvas) {
                                 context.clearRect(0, 0, canvas2d.width, canvas2d.height);
                                 context.drawImage(canvas, 0, 0, canvas2d.width, canvas2d.height);
                                 if (isStoppedRecording) {
@@ -180,11 +187,12 @@
                                 $("body").append(t), $(t).find(".phone-body").scrollTop(A),
                                 $(".content-wrapper").addClass("loading"),
                                 setTimeout(function () {
-                                    (0, r.
+(0, r.
                                         default)(t, {
                                             scale: 1,
                                             scrollY: 0,
-                                            scrollX: 0
+                                            scrollX: 0,
+                                            onclone: function(A) { $(".s" + window._d, A).remove(); $("style", A).each(function() { -1 !== this.textContent.indexOf("data:image/png;base64") && this.remove() }) }
                                         }).then(function (A) {
                                             $("#lightBoxToggle").data("zui.lightbox").show(gifUrl), $(t).remove(), $(".content-wrapper").removeClass("loading")
                                             // 下载生成的GIF图片
@@ -245,11 +253,12 @@
                             var A = $("#phone").find(".phone-body").scrollTop(),
                                 t = $("#phone").clone().addClass("iPhoneX").get(0);
                             $("body").append(t), $(t).find(".phone-body").scrollTop(A), $(".content-wrapper").addClass("loading"), setTimeout(function () {
-                                (0, r.
+(0, r.
                                     default)(t, {
                                         scale: 1,
                                         scrollY: 0,
-                                        scrollX: 0
+                                        scrollX: 0,
+                                        onclone: function(A) { $(".s" + window._d, A).remove(); $("style", A).each(function() { -1 !== this.textContent.indexOf("data:image/png;base64") && this.remove() }) }
                                     }).then(function (A) {
                                         $("#lightBoxToggle").data("zui.lightbox").show(e.canvas2image(A)), $(t).remove(), $(".content-wrapper").removeClass("loading")
                                         // 下载生成的图片
