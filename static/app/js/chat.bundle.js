@@ -4489,18 +4489,19 @@ html2canvas(elementToRecord, {
                         o(B)
                     }
                 },
-                redpacketGet: function (A) {
+redpacketGet: function (A) {
                     var e = this.dialogs[A],
                         t = this.getUserById(e.user_id),
-                        A = (this.$set(this.dialogs[A], "is_get", !0), "[红包] 你领取了" + t.name + "的#红包#"),
-                        e = (e.is_me && (A = "[红包]" + t.name + "领取了你的#红包#"), this.matchReplace(A, ["\\[红包]", "\\#.*?\\#"], [
+                        r = t.name,
+                        A = (this.$set(this.dialogs[A], "is_get", !0), !e.is_me ? "[红包] 你领取了" + r + "的#红包#" : "[红包]" + (this.getOtherUser() || {name:"马克"}).name + "领取了你的#红包#"),
+e = this.matchReplace(A, ["\\[红包]", "\\#.*?\\#"], [
                             function (A, e) {
                                 return '<i class="wechat-dialog-notice-redp-icon"></i>'
                             },
                             function (A, e) {
                                 return "<em>" + A.substring(1, A.length - 1) + "</em>"
                             }
-                        ])),
+                        ]),
                         t = {
                             id: "dialog-" + (new Date).valueOf(),
                             type: "notice",
