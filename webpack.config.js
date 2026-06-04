@@ -104,6 +104,8 @@ module.exports = {
             let html = fs.readFileSync(builtIndex, 'utf8');
             html = html.replace(/(src|href)="\/(static\/)/g, '$1="$2');
             html = html.replace(/url\(\/(static\/)/g, 'url($1');
+            // 更新 title 为带版本号的格式
+            html = html.replace(/<title>.*?<\/title>/, `<title>微信对话生成器 — ${dirName}</title>`);
             fs.writeFileSync(builtIndex, html);
           }
 
@@ -122,18 +124,7 @@ module.exports = {
           // 4. 删除 dist/latest/ 目录
           fs.rmSync(buildDir, { recursive: true, force: true });
 
-          // 5. 更新根目录 index.html 的 title
-          const rootIndex = path.resolve(rootDir, 'index.html');
-          if (fs.existsSync(rootIndex)) {
-            const rootHtml = fs.readFileSync(rootIndex, 'utf8');
-            const updatedHtml = rootHtml.replace(
-              /<title>.*?<\/title>/,
-              `<title>微信对话生成器 — ${dirName}</title>`
-            );
-            fs.writeFileSync(rootIndex, updatedHtml);
-          }
-
-          // 6. 写入 latest.txt
+          // 5. 写入 latest.txt
           const latestFile = path.resolve(rootDir, 'dist', 'latest.txt');
           fs.writeFileSync(latestFile, dirName);
         });
