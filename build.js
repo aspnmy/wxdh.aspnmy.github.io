@@ -171,6 +171,9 @@ async function main() {
     if (result.skipped) return; // builder.lock 匹配，跳过
     release = result.release;
     await fetchSource(release);
+
+    // 重建 dummy.js，供 webpack entry 使用
+    fs.writeFileSync(path.join(SRC_DIR, 'dummy.js'), '// placeholder');
   }
 
   console.log('[build] 执行 webpack 构建...');

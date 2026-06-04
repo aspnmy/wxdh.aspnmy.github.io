@@ -6,16 +6,19 @@ const TerserPlugin = require('terser-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 // 从源码中读取版本号
-const htmlContent = fs.readFileSync('./src/index.html', 'utf8');
-const verMatch = htmlContent.match(/var version\s*=\s*'([^']+)'/);
-const version = verMatch ? verMatch[1] : '0.0.3';
+let version = '0.0.3';
+try {
+  const htmlContent = fs.readFileSync('./src/index.html', 'utf8');
+  const verMatch = htmlContent.match(/var version\s*=\s*'([^']+)'/);
+  if (verMatch) version = verMatch[1];
+} catch (e) { /* src/ 可能已被清理，使用默认值 */ }
 
 // 生成时间戳：YYYYMMDDHHmmss
 const now = new Date();
 const pad = (n) => String(n).padStart(2, '0');
 const dateStr = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
 
-// 获取 git 短哈希（7位）
+// 获取 git 短哈希
 const { execSync } = require('child_process');
 let gitHash = '';
 try {
@@ -81,16 +84,8 @@ module.exports = {
             return content;
           },
         },
-        {
-          from: 'src/favicon.ico',
-          to: 'favicon.ico',
-          noErrorOnMissing: true,
-        },
-        {
-          from: 'src/CNAME',
-          to: 'CNAME',
-          noErrorOnMissing: true,
-        },
+        { from: 'src/favicon.ico', to: 'favicon.ico', noErrorOnMissing: true },
+        { from: 'src/CNAME', to: 'CNAME', noErrorOnMissing: true },
       ],
     }),
     {
