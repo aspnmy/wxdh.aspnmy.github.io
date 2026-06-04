@@ -1,0 +1,26 @@
+{
+  "name": "wxdh",
+  "version": "0.0.3",
+  "description": "在线微信聊天对话制作工具，可模拟微信聊天界面，支持文字、图片、语音、红包、转账等多种消息类型，适合娱乐搞笑、微商素材制作等场景。",
+  "private": true,
+  "scripts": {
+    "build": "node build.js",
+    "build:skipfetch": "node build.js --skip-fetch",
+    "clean": "node build.js clean"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "adm-zip": "^0.5.17",
+    "copy-webpack-plugin": "^14.0.0",
+    "css-loader": "^7.1.2",
+    "css-minimizer-webpack-plugin": "^8.0.0",
+    "extract-zip": "^2.0.1",
+    "html-webpack-plugin": "^5.6.7",
+    "mini-css-extract-plugin": "^2.10.2",
+    "terser-webpack-plugin": "^5.6.1",
+    "webpack": "^5.107.2",
+    "webpack-cli": "^7.0.3"
+  }
+}

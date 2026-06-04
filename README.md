@@ -1,131 +1,85 @@
-# 对话生成器
+# wxdh — dist 分支（自动构建 & 部署）
 
-在线微信聊天对话制作工具，可模拟微信聊天界面，支持文字、图片、语音、红包、转账等多种消息类型，适合娱乐搞笑、微商素材制作等场景。
+本项目采用 **双分支部署模型**：`main` 分支保存源代码 & 修改历史，`dist` 分支由 **CI 自动构建**并部署到 **GitHub Pages**。
 
-
-
-## 修复了原始版本的各种BUG。在线演示
-
-- GitHub Pages: http://wxdh.earth-online.org/
-
-## 修复记录
-
-### 2026-06-04
-
-- **`93395f3`** — 统一版本号为 `0.0.3`，所有 CSS/JS 资源使用 `version` 变量管理，优化缓存更新策略
-- **`b099167`** — 完善 README，新增功能介绍、技术栈、项目结构、部署方式和修复记录
-- **`c7d8f6e`** — 所有资源链接添加 `?v=20260604` 时间戳确保缓存更新；优化录制功能说明
-- **`c4be835`** — 添加 `localforage.js` 脚本，支持聊天数据离线存储（localforage 持久化）
-- **`b6d8bcd`** — 添加使用教程标签和视频演示；优化红包领取逻辑（解决红包/转账领取状态异常）
-- **`37a7bdf`** — 优化录制功能说明，更新生成视频和 GIF 的提示信息；增强 html2canvas 克隆处理（解决截图时样式丢失）
-- **`e71a1b1`** — 更新页面标题和图标路径；修复百度统计脚本链接
-- **`7510b75`** — 清理未使用的 `wallet.css` 引用，修复资源文件路径
-- **`7e9bbcc`** — 更新图片资源文件
-- **`fd8f107`** — 接入 html2canvas，新增聊天截图导出功能，接入 gif.js，新增 GIF 录制功能；优化聊天截图导出逻辑（解决截图时样式丢失），接入视频录制功能（基于 gif.js）
-- **`6adf5ee`** — 重构代码结构，提升可读性和可维护性
-- **`b69aa15`** — 修复时间跨度选择器的问题
-
-### 历史修复记录
-
-- **`454f222`** — 更新项目说明和在线示例站链接
-- **`0dca386`** / **`beff3aa`** / **`7e26f6c`** / **`291d11c`** — 多轮 README 更新，补充开源作品展示
-
-### 原始版本 (2022-11-24)
-
-- **`56152ff`** — 初始版本，来自 [码云](https://gitee.com/lifeixue/weixin-chat)，作者：追风少年
-
-## 功能特性
-
-- **外观设置**：手机信号、WiFi/3G/4G/5G、电量、充电状态、听筒模式、聊天标题、聊天背景等
-- **对话类型**：文字消息、图片消息、语音消息（支持已读/未读）、红包、转账
-- **多用户管理**：支持添加/删除用户，自定义头像和昵称
-- **截图导出**：一键生成高清聊天截图（基于 html2canvas）
-- **GIF 录制**：录制聊天记录滚动过程，导出为 GIF 动图
-- **视频录制**：录制聊天记录滚动过程，导出为视频
-- **离线存储**：聊天数据本地持久化（基于 localforage）
-- **使用教程**：内置视频演示教程
-
-## 技术栈
-
-- 前端框架：Vue.js
-- UI 组件：ZUI
-- 截图：html2canvas
-- GIF 生成：gif.js
-- 离线存储：localforage
-- 纯静态页面，无需后端
-
-## 项目结构
+## 部署架构
 
 ```
-wxdh/
-├── index.html                    # 主页面
-├── static/app/
-│   ├── css/
-│   │   ├── app.css               # 应用样式
-│   │   └── zui.min.css           # ZUI UI 框架
-│   ├── js/
-│   │   ├── analytics.js          # 统计代码（可替换为自己的统计服务）
-│   │   ├── common.bundle.js      # 公共依赖（Vue 等）
-│   │   ├── chat.bundle.js        # 聊天核心逻辑
-│   │   ├── html2canvas.min.js    # 截图库
-│   │   ├── localforage.min.js    # 离线存储库
-│   │   ├── gif.js                # GIF 生成库
-│   │   └── gif.worker.js         # GIF Worker
-│   ├── images/
-│   │   ├── bar/                  # 状态栏图标
-│   │   ├── chat_face/            # 默认头像
-│   │   ├── tech/tech.mp4         # 使用教程视频
-│   │   └── ...                   # 其他 UI 图片
-│   └── fonts/                    # 字体文件
+main 分支（源码）                    dist 分支（构建产物）
+    │                                    │
+    ├── index.html                        ├── index.html          ← iframe 入口，加载 dist/latest
+    ├── static/                           ├── dist/
+    │   ├── css/                          │   ├── latest/         ← 公共路径，始终指向最新构建
+    │   ├── js/                           │   │   ├── index.html
+    │   └── images/                       │   │   └── static/
+    │                                    │   ├── latest.txt      ← 记录当前最新版本目录名
+    └── ...                              │   └── 0.0.3-20260605-abc1234/  ← 归档历史版本
+                                         ├── builder.lock        ← 本次构建的目标版本（指定 tag 或 release_id）
+                                         ├── webpack.config.js   ← webpack 打包配置
+                                         ├── build.js            ← 自动构建脚本
+                                         └── package.json        ← 构建依赖
 ```
 
-## 部署方式
+## 自动构建流程（GitHub Actions）
 
-本项目为纯静态页面，部署方式灵活：
+当 `main` 分支创建新 Release 或 `dist` 分支收到 push 时：
 
-1. **GitHub Pages**：Fork 本仓库，在 Settings → Pages 中启用
-2. **Web 服务器**：将整个项目目录上传到 Nginx/Apache 等静态服务器
-3. **虚拟主机**：直接上传到虚拟主机根目录
+1. **读取目标版本** — 从 `builder.lock` 读取本次需要构建的版本（`tag=v0.0.3` 或 `release_id=...`）
+2. **拉取源码** — 从 [GitHub Releases](https://github.com/aspnmy/wxdh.aspnmy.github.io/releases) 下载指定版本的源码到 `src/`
+3. **webpack 打包** — 压缩 JS/CSS，输出到 `dist/latest/`
+4. **版本归档** — 同步拷贝到 `dist/{version}-{timestamp}-{githash}/`
+5. **清理源码** — 删除 `src/` 中的源代码（仅保留 `.source-version` 记录）
+6. **提交 & 推送** — 将 `dist/` 等构建产物提交回 `dist` 分支
+7. **GitHub Pages 自动部署** — Pages 设置为从 `dist` 分支根目录部署
 
-> 注意：源码未适配二级目录，建议部署在网站根目录。
+## builder.lock 机制
 
-## 本地开发
+```
+release_id=334458445
+tag=v0.0.3
+built=2026-06-05T00:30:00.000Z
+```
 
-直接使用浏览器打开 `index.html` 即可。部分功能（如截图）需要 HTTP 服务，建议使用 Live Server 或 `python -m http.server`。
+**每次构建成功后自动写入**，记录已构建的 `release_id` 和 `tag`。
 
+- **builder.lock 不存在** → 必须构建，构建后写入 lock
+- **builder.lock 的 `release_id` = 最新 Release** → 跳过构建（已是最新）
+- **builder.lock 的 `release_id` ≠ 最新 Release** → 重新构建，更新 lock
+- **`--force`** → 忽略 lock，强制重新构建
 
-## 资源缓存管理
+## 本地构建
 
-所有 CSS/JS 资源引用使用 `?v=日期` 时间戳进行版本管理，更新资源后修改 `index.html` 中的版本号即可强制刷新浏览器缓存。
+```bash
+# 安装依赖
+npm install
 
-## 如何修改自己的百度统计代码？
+# 完整构建（拉取最新 Release 源码 + webpack 打包）
+npm run build
 
-在 `static/app/js/analytics.js` 文件中修改百度统计代码即可。
+# 跳过拉取，仅用已有 src/ 构建
+npm run build:skipfetch
 
-## 分支main和分支dist的区别
+# 仅在 GitHub Release 更新后重新构建（需要先手动更新 main 分支）
+# CI 自动处理，本地无需操作
+```
 
-main分支是源代码，dist分支是打包后的代码。如果你想直接使用，请下载或克隆dist分支的代码。
+## 目录说明
 
+| 文件/目录 | 作用 | 是否提交 |
+|-----------|------|----------|
+| `index.html` | 根入口，iframe 加载 `dist/latest/index.html` | 是 |
+| `dist/latest/` | 最新构建产物（公共路径） | 是 |
+| `dist/0.0.3-.../` | 归档的历史版本 | 是 |
+| `dist/latest.txt` | 记录最新归档目录名 | 是 |
+| `builder.lock` | 本次构建的目标版本 | 是 |
+| `webpack.config.js` | webpack 打包配置 | 是 |
+| `build.js` | 自动构建脚本 | 是 |
+| `package.json` | 构建依赖声明 | 是 |
+| `src/` | 源码（构建时从 Release 拉取） | **否**（gitignore） |
+| `node_modules/` | npm 依赖 | **否**（gitignore） |
 
+## 关联仓库
 
-## 贡献者
-
-感谢以下贡献者：
-
-- [追风少年](https://gitee.com/lifeixue)
-- [zixiwangluo](https://github.com/zixiwangluo/wxdh)
-
-
-
-
-## 开源协议
-
-MIT License
-
-## 源码来源
-
-来自 [码云](https://gitee.com/lifeixue/weixin-chat)，原作者：追风少年。
-
-## 免责声明
-
-本工具仅用于娱乐用途，请勿用于非法途径。由此产生任何纠纷由使用者自行承担。
+- GitHub Pages: [https://wxdh.earth-online.org/](https://wxdh.earth-online.org/)
+- 源码与 Release: [aspnmy/wxdh.aspnmy.github.io](https://github.com/aspnmy/wxdh.aspnmy.github.io)
+- 原始项目: [码云 — lifeixue/weixin-chat](https://gitee.com/lifeixue/weixin-chat)
