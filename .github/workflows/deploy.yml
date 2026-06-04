@@ -19,11 +19,11 @@ on:
   push:
     branches:
       - dist
-paths:
+    paths:
       - 'builder.lock'
       - '.github/workflows/deploy.yml'
-  # index.html 的变更不触发构建（title 由 webpack 构建后写入，不含触发源）
-  paths-ignore:
+      - 'build.js'
+    paths-ignore:
       - 'index.html'
 
 # 防止并发构建
@@ -95,4 +95,5 @@ jobs:
           path: dist/latest
 
       - name: Deploy to GitHub Pages
+        id: deploy
         uses: actions/deploy-pages@v4

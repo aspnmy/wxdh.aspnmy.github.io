@@ -95,6 +95,17 @@ module.exports = {
           if (fs.existsSync(placeholder)) fs.unlinkSync(placeholder);
           copyDir(buildDir, archiveDir);
 
+          // 修复 dist/latest/index.html 中的绝对路径为相对路径
+          const builtIndex = path.resolve(buildDir, 'index.html');
+          if (fs.existsSync(builtIndex)) {
+            let html = fs.readFileSync(builtIndex, 'utf8');
+            // 修复 src="/xxx" → src="xxx"
+            html = html.replace(/(src|href)="\/(static\/)/g, '$1="$2');
+            // 修复 url(/xxx) → url(xxx)
+            html = html.replace(/url\(\/(static\/)/g, 'url($1');
+            fs.writeFileSync(builtIndex, html);
+          }
+
           // 更新根目录 index.html 的 title 标签，追加版本号
           const rootIndex = path.resolve(__dirname, 'index.html');
           if (fs.existsSync(rootIndex)) {
