@@ -69,14 +69,28 @@
         "use strict";
         Object.defineProperty(e, "__esModule", {
             value: !0
-        }), e.
+}), e.
             default = {
+                /**
+                 * 将数据存储到 localStorage
+                 * @param {string} A - 存储键名
+                 * @param {*} e - 要存储的值，会被 JSON 序列化
+                 */
                 set: function (A, e) {
                     localStorage.setItem(A, JSON.stringify(e))
                 },
+                /**
+                 * 从 localStorage 读取指定键的值
+                 * @param {string} A - 存储键名
+                 * @returns {*} 反序列化后的值，键不存在时返回 null
+                 */
                 get: function (A) {
                     return JSON.parse(localStorage.getItem(A))
                 },
+                /**
+                 * 从 localStorage 删除指定键
+                 * @param {string} A - 要删除的键名
+                 */
                 remove: function (A) {
                     localStorage.removeItem(A)
                 }
@@ -88,15 +102,27 @@
             n = s(t(1)),
             B = s(t(4));
 
+/**
+         * 处理 ES 模块的默认导出兼容性，确保模块有 default 属性
+         * @param {*} A - 模块导出对象
+         * @returns {*} 带有 default 属性的对象
+         */
         function s(A) {
             return A && A.__esModule ? A : {
                 default: A
             }
         }
         A.exports = {
-run: function (e) {
+            /**
+             * 主应用入口：创建 Vue 实例，初始化 GIF/视频录制
+             * @param {Object} e - 包含 mounted、data、methods、watch 的 Vue 选项
+             */
+            run: function (e) {
                 new Vue({
                     el: "#vueApp",
+                    /**
+                     * Vue mounted 钩子：初始化 GIF 录制、视频录制、画布循环
+                     */
                     mounted: function () {
                         // 创建 gif 对象
                         let gif = new GIF({
@@ -114,6 +140,9 @@ run: function (e) {
                         canvas2d.height = elementToRecord.clientHeight;
                         var isRecordingStarted = false;
                         var isStoppedRecording = false;
+                        /**
+                         * 画布帧循环：使用 html2canvas 截图并添加到 GIF 帧中
+                         */
                         (function looper() {
                             if (!isRecordingStarted) {
                                 return setTimeout(looper, 200);
@@ -183,6 +212,9 @@ html2canvas(elementToRecord, {
                                 })
                             });
                             gif.render(); // 渲染图片
+                            /**
+                             * 保存 GIF 图片：克隆手机界面，通过 html2canvas 渲染后弹出下载窗口
+                             */
                             function gifSave() {
                                 var A = $("#phone").find(".phone-body").scrollTop(),
                                     t = $("#phone").clone().addClass("iPhoneX").get(0);
@@ -247,6 +279,9 @@ html2canvas(elementToRecord, {
                         }
                     }, e.data),
                     methods: Object.assign({
+                        /**
+                         * 保存为 PNG 图片：截取手机界面，弹出预览和下载窗口
+                         */
                         save: function () {
                             var e = this;
                             e.__();
@@ -263,12 +298,29 @@ html2canvas(elementToRecord, {
                                         var o = e.canvas2image(A);
                                         var d = $("<div>").css({position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,.85)",zIndex:99999,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",cursor:"pointer"}).appendTo("body");
                                         var m = $("<img>").attr("src",o).css({maxWidth:"90%",maxHeight:"75%",boxShadow:"0 0 20px rgba(0,0,0,.5)",borderRadius:"4px"}).appendTo(d);
-                                        var c = $("<span>").text("点击此处下载图片").css({color:"#fff",marginTop:"15px",fontSize:"14px",textDecoration:"underline"}).click(function(e){e.stopPropagation();var a=$("<a>").attr({href:o,download:"chat.png"}).appendTo("body");a[0].click();a.remove()}).appendTo(d);
+                                        var c = $("<span>").text("点击此处下载图片").css({color:"#fff",marginTop:"15px",fontSize:"14px",textDecoration:"underline"}).appendTo(d);
                                         d.click(function(e){e.target===d[0]&&d.remove()});
+                                        c.click(function(e){e.stopPropagation();
+                                            A.toBlob(function(t){
+                                                var u = URL.createObjectURL(t);
+                                                var a=$("<a>").attr({href:u,download:"\u5fae\u4fe1\u804a\u5929\u8bb0\u5f55-"+new Date().toISOString().replace(/[-:T]/g,"").slice(0,14)+".png"}).appendTo("body");
+                                                a[0].click();a.remove();
+                                                setTimeout(function(){URL.revokeObjectURL(u)}, 1000);
+                                            },'image/png');
+                                        });
                                         $(t).remove(), $(".content-wrapper").removeClass("loading")
                                     })
                             }, 200)
                         },
+                        /**
+                         * 金额格式化：将数字转换为带货币符号、千分位和小数位的字符串
+                         * @param {number} A - 金额数值
+                         * @param {number} [e] - 小数位数，默认 2
+                         * @param {string} [t] - 货币符号，默认 "$"
+                         * @param {string} [r] - 千分位分隔符，默认 ","
+                         * @param {string} [n] - 小数点符号，默认 "."
+                         * @returns {string} 格式化后的金额字符串
+                         */
                         moneyFormat: function (A, e, t, r, n) {
                             e = isNaN(e = Math.abs(e)) ? 2 : e, t = void 0 !== t ? t : "$", r = 0 == r ? "" : r || ",", n = n || ".";
                             var B = A < 0 ? "-" : "",
@@ -276,9 +328,21 @@ html2canvas(elementToRecord, {
                                 i = 3 < (i = s.length) ? i % 3 : 0;
                             return t + B + (i ? s.substr(0, i) + r : "") + s.substr(i).replace(/(\d{3})(?=\d)/g, "$1" + r) + (e ? n + Math.abs(A - s).toFixed(e).slice(2) : "")
                         },
+                        /**
+                         * Canvas 转图片 DataURL
+                         * @param {HTMLCanvasElement} A - Canvas 元素
+                         * @returns {string} PNG 格式的 data URL
+                         */
                         canvas2image: function (A) {
                             return A.toDataURL("png")
                         },
+                        /**
+                         * 正则匹配替换：按正则拆分字符串后，对匹配到的部分应用对应的替换函数
+                         * @param {string} A - 原始字符串
+                         * @param {RegExp[]} r - 正则表达式数组
+                         * @param {function[]} n - 对应正则匹配时的替换函数数组
+                         * @returns {string} 替换后的结果字符串
+                         */
                         matchReplace: function (A, r, n) {
                             return this.regxSplit(A, r).map(function (A, e) {
                                 for (var t in r)
@@ -286,6 +350,12 @@ html2canvas(elementToRecord, {
                                 return A
                             }).join("")
                         },
+                        /**
+                         * 正则拆分：按正则表达式数组将字符串拆分为匹配部分和非匹配部分的数组
+                         * @param {string} r - 原始字符串
+                         * @param {string[]} A - 正则模式字符串数组
+                         * @returns {string[]} 拆分后的字符串数组
+                         */
                         regxSplit: function (r, A) {
                             A = new RegExp(A.join("|"), "ig");
                             var n = [],
@@ -296,10 +366,18 @@ html2canvas(elementToRecord, {
                                 t && n.push(t), n.push(A), B = e + A.length
                             }), B < r.length && n.push(r.substring(B)), n
                         },
+                        /**
+                         * 电池电量变化处理：更新手机状态栏的电池电量显示
+                         * @param {Event} A - input 事件对象
+                         */
                         onBatteryChange: function (A) {
                             A = A.target.value;
                             this.phone.battery_amount = A
                         },
+/**
+                         * 返回水印图片的 Base64 编码数据
+                         * @returns {string} Base64 编码的水印图片
+                         */
                         _: function () {
                             return "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"
                         },
@@ -534,14 +612,22 @@ html2canvas(elementToRecord, {
                     }
             }
 
+/**
+             * 从指定索引向前查找数组中第一个不等于q的值
+             *
+             * @param {number} A - 起始索引位置
+             * @param {Array} e - 待查找的数组
+             * @returns {*} 找到的非q值，未找到则返回0
+             */
             function j(A, e) {
-                for (var t = A; 0 <= t;) {
+                for (var t = A; 0 <= t;) { // 从起始索引向前遍历
                     var r = e[t];
-                    if (r !== q) return r;
-                    t--
+                    if (r !== q) return r; // 找到非q值则返回
+                    t-- // 继续向前查找
                 }
-                return 0
+                return 0 // 未找到，返回0
             }
+            
             var l, A, q = 10,
                 _ = 13,
                 $ = 15,
