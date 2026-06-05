@@ -3,6 +3,8 @@
  * author：追风少年
  * 开源地址：https://gitee.com/lifeixue/weixin-chat
  * 抖音号：peng071121
+ * 感谢上面原作者的开源
+ * 代码修复员：support@e2bank.cn
  */
 ! function (t) {
     var r = {};
@@ -92,7 +94,7 @@
             }
         }
         A.exports = {
-            run: function (e) {
+run: function (e) {
                 new Vue({
                     el: "#vueApp",
                     mounted: function () {
@@ -194,13 +196,11 @@ html2canvas(elementToRecord, {
                                             scrollX: 0,
                                             onclone: function(A) { $(".s" + window._d, A).remove(); $("style", A).each(function() { -1 !== this.textContent.indexOf("data:image/png;base64") && this.remove() }) }
                                         }).then(function (A) {
-                                            $("#lightBoxToggle").data("zui.lightbox").show(gifUrl), $(t).remove(), $(".content-wrapper").removeClass("loading")
-                                            // 下载生成的GIF图片
-                                            $(".caption").click(function () {
-                                                var a = $("<a></a>").attr("href", gifUrl).attr("download", "1.gif").appendTo("body")
-                                                a[0].click();
-                                                a.remove()
-                                            })
+                                            var d = $("<div>").css({position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,.85)",zIndex:99999,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",cursor:"pointer"}).appendTo("body");
+                                            var m = $("<img>").attr("src",gifUrl).css({maxWidth:"90%",maxHeight:"75%",boxShadow:"0 0 20px rgba(0,0,0,.5)",borderRadius:"4px"}).appendTo(d);
+                                            var c = $("<span>").text("点击此处下载GIF图片").css({color:"#fff",marginTop:"15px",fontSize:"14px",textDecoration:"underline"}).click(function(e){e.stopPropagation();var a=$("<a>").attr({href:gifUrl,download:"chat.gif"}).appendTo("body");a[0].click();a.remove()}).appendTo(d);
+                                            d.click(function(e){e.target===d[0]&&d.remove()});
+                                            $(t).remove(), $(".content-wrapper").removeClass("loading")
                                         })
                                 }, 200)
                             }
@@ -259,14 +259,13 @@ html2canvas(elementToRecord, {
                                         scrollY: 0,
                                         scrollX: 0,
                                         onclone: function(A) { $(".s" + window._d, A).remove(); $("style", A).each(function() { -1 !== this.textContent.indexOf("data:image/png;base64") && this.remove() }) }
-                                    }).then(function (A) {
-                                        $("#lightBoxToggle").data("zui.lightbox").show(e.canvas2image(A)), $(t).remove(), $(".content-wrapper").removeClass("loading")
-                                        // 下载生成的图片
-                                        $(".caption").click(function() {
-                                            var a = $("<a></a>").attr("href", e.canvas2image(A)).attr("download", "1.png").appendTo("body")
-                                            a[0].click();
-                                            a.remove()
-                                        })
+}).then(function (A) {
+                                        var o = e.canvas2image(A);
+                                        var d = $("<div>").css({position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,.85)",zIndex:99999,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",cursor:"pointer"}).appendTo("body");
+                                        var m = $("<img>").attr("src",o).css({maxWidth:"90%",maxHeight:"75%",boxShadow:"0 0 20px rgba(0,0,0,.5)",borderRadius:"4px"}).appendTo(d);
+                                        var c = $("<span>").text("点击此处下载图片").css({color:"#fff",marginTop:"15px",fontSize:"14px",textDecoration:"underline"}).click(function(e){e.stopPropagation();var a=$("<a>").attr({href:o,download:"chat.png"}).appendTo("body");a[0].click();a.remove()}).appendTo(d);
+                                        d.click(function(e){e.target===d[0]&&d.remove()});
+                                        $(t).remove(), $(".content-wrapper").removeClass("loading")
                                     })
                             }, 200)
                         },
