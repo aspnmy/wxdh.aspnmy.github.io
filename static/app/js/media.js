@@ -137,7 +137,7 @@
                 onclone: createOnClone()
             }).then(function (canvas) {
                 showPreviewModal(gifUrl, true, function () {
-                    var a = $('<a>').attr({ href: gifUrl, download: 'chat.gif' }).appendTo('body');
+                    var a = $('<a>').attr({ href: gifUrl, download: '微信聊天图片_' + new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14) + '.gif' }).appendTo('body');
                     a[0].click();
                     a.remove();
                 });
