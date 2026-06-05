@@ -10,6 +10,17 @@
 
 ## 修复记录
 
+### 2026-06-05
+
+- **`98616a4`** — 重构代码结构，提升可读性和可维护性
+- 版本号升级至 `0.0.4`，所有 CSS/JS 资源统一使用 `?v=0.0.4`；接入统计代码并清理未使用的资源引用
+- PNG 图片下载文件名改为 `微信聊天记录-YYYYMMDDHHMMSS.png` 动态时间戳格式
+- 为 `chat.bundle.js` 中所有业务逻辑函数添加 JSDoc 行间注释和函数头部注释
+- **媒体业务逻辑迁移**：将图片生成、GIF 录制、视频录制、水印管理等第三方调用业务从 `chat.bundle.js` 提取到独立 `media.js` 文件，挂载为 `window.MediaManager`
+- **修复 tainted canvas 错误**：`createOnClone()` 中移除 video 元素，避免录制视频后 html2canvas 截图因 tainted canvas 失败
+- **GIF 与视频录制分离为独立功能**：`#downGif` 按钮独立控制 GIF 捕获/合成/下载流程，`#btn-start-recording` / `#btn-stop-recording` 独立控制视频录制，互不依赖
+- 更新 `index.html` 说明文字，明确 PNG 图片生成、GIF 录制、视频录制为三个独立功能
+
 ### 2026-06-04
 
 - **`93395f3`** — 统一版本号为 `0.0.3`，所有 CSS/JS 资源使用 `version` 变量管理，优化缓存更新策略
@@ -67,6 +78,7 @@ wxdh/
 │   │   ├── analytics.js          # 统计代码（可替换为自己的统计服务）
 │   │   ├── common.bundle.js      # 公共依赖（Vue 等）
 │   │   ├── chat.bundle.js        # 聊天核心逻辑
+│   │   ├── media.js              # 媒体管理模块（PNG导出、GIF录制、视频录制、水印）
 │   │   ├── html2canvas.min.js    # 截图库
 │   │   ├── localforage.min.js    # 离线存储库
 │   │   ├── gif.js                # GIF 生成库
