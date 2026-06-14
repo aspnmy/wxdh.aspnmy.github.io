@@ -82,7 +82,7 @@
         self.isShown = true;
         // 仅在显示时绑定 ESC 监听，避免 document 上累积重复监听器
         $(document).on('keydown.zui.lightbox', function (e) {
-            if (e.keyCode === ESC_KEY_CODE) {
+            if (e.keyCode === ESC_KEY_CODE && self.isShown) {
                 self.hide();
             }
         });
