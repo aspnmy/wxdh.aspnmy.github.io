@@ -22,8 +22,10 @@
 
 
 <script type="text/javascript" src="static/app/js/common.bundle.js?v=0.0.4"></script>
-	<!-- ZUI v1.10.0 upgrade: overrides v1.9.2 bundled in common.bundle.js -->
+	<!-- ZUI v3.0.0 -->
 	<script type="text/javascript" src="static/app/js/zui.min.js?v=0.0.4"></script>
+	<!-- ZUI 3.0 Lightbox 兼容脚本（ZUI 3.0 移除了 lightbox 组件） -->
+	<script type="text/javascript" src="static/app/js/zui.lightbox.compat.js?v=0.0.4"></script>
 	<script type="text/javascript" src="static/app/js/localforage.min.js?v=0.0.4"></script>
 	<script src="static/app/js/html2canvas.min.js?v=0.0.4"></script>
 	<!-- gif -->
@@ -41,9 +43,9 @@
 				<div class="tab">
 
 					<ul class="nav nav-tabs">
-						<li><a data-tab href="#tabContent0">使用教程</a></li>
-						<li><a data-tab href="#tabContent1">外观设置</a></li>
-						<li class="active"><a data-tab href="#tabContent2">对话设置</a></li>
+						<li><a data-toggle="tab" href="#tabContent0">使用教程</a></li>
+						<li><a data-toggle="tab" href="#tabContent1">外观设置</a></li>
+						<li class="active"><a data-toggle="tab" href="#tabContent2">对话设置</a></li>
 					</ul>
 					<div class="tab-content">
 <div class="tab-pane" id="tabContent0">
